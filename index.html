@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Weather Dashboard</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <script src="https://kit.fontawesome.com/bf34f2158d.js" crossorigin="anonymous"></script>
+  <link href="assets/bootstrap/css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#"><h1>Weather Dashboard</h1></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="container">
+
+    <div class="row" style="margin-top: 80px;">
+
+      <div class="col-lg-3">
+
+        <h4 class="my-4">Search for a city:</h4>
+        <div class="list-group">
+          <form>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search" id="citySearch">
+              <div class="input-group-btn">
+                <button class="btn btn-primary" type="submit" id="submitSearch" style="height: calc(1.5em + .75rem + 2px); width: 50px;">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+          <ul class="list-group" id="cityList">
+          </ul>
+        </div>
+
+      </div>
+      <!-- /.col-lg-3 -->
+
+      <div class="col-lg-9">
+
+        <div class="jumbotron">
+          <h1 class="display-4" id="cityDisplay"></h1><span id="mainIcon"></span>
+          <p class="lead">Temperature: <span id="tempDisplay"></span></p>
+          <p>Humidity: <span id="humDisplay"></span></p>
+          <p>Wind speed: <span id="windDisplay"></span></p>
+          <p>UV Index: <span><button type="button" class="btn btn-danger" id="uvDisplay"></button></span></p>
+
+        </div>
+
+        <div class="row" id="weatherCards">
+
+        </div>
+        <!-- /.row -->
+
+      </div>
+      <!-- /.col-lg-9 -->
+
+    </div>
+    <!-- /.row -->
+
+  </div>
+  <!-- /.container -->
+
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script type="text/javascript">
+
+      var localCities = JSON.parse(localStorage.getItem('cities'));
+      var cities = [];
+      if(localCities){
+        cities = localCities;
+      }
+      var container = $('ul');
+      for(var i = 0; i < cities.length; i++){
+        container.html('<li class="list-group-item">' + cities[i] + '</li>');
+        console.log(cities);
+      }
+      
+function getWeather(){
+      var cityName = document.getElementById('citySearch').value;
+      var apiKey = 'f5a635184c5397619e4bd466ff42f5b9';
+      $.ajax({
+    type: "GET",
+    url: "http://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=" + apiKey,
+      dataType: 'json',
+      success: function (data) {
+          $('#cityDisplay').text(data.city.name + '(' + moment(data.list[0].dt_txt).format('L') + ')');
+          $('#tempDisplay').text((parseInt((data.list[0].main.temp) - 273.15) * 9 / 5 + 32 + String.fromCharCode(176)) + 'F');
+          $('#humDisplay').text(data.list[0].main.humidity + '%');
+          $('#windDisplay').text(data.list[0].wind.speed);
+          var iconMainEl = '';
+          if(data.list[0].weather[0].main === "Rain"){
+              iconMainEl = '<i class="fas fa-cloud-showers-heavy"></i>';
+            }
+            else if(data.list[0].weather[0].main === "Clear"){
+              iconMainEl = '<i class="fas fa-sun"></i>';
+            }
+            else if (data.list[0].weather[0].main === "Clouds"){
+              iconMainEl = '<i class="fas fa-cloud"></i>';
+            }
+            else{
+              iconMainEl = '<i class="fas fa-sun"></i>';
+            }
+            $('#mainIcon').html(iconMainEl);
+          var lat = data.city.coord.lat;
+          var lon = data.city.coord.lon;
+          console.log(data);
+          var container = $('<div class="row"/>');
+          var iconEl = ''
+          for(var i = 1; i < 6; i++) {
+            if(data.list[i].weather[0].main === "Rain"){
+              iconEl = '<i class="fas fa-cloud-showers-heavy"></i>';
+            }
+            else if(data.list[i].weather[0].main === "Clear"){
+              iconEl = '<i class="fas fa-sun"></i>';
+            }
+            else if (data.list[i].weather[0].main === "Clouds"){
+              iconEl = '<i class="fas fa-cloud"></i>';
+            }
+            else{
+              iconEl = '<i class="fas fa-sun"></i>';
+            }
+              container.append('<div class="col-sm-4" style="background-color: blue; border-radius: 20px; color: white; padding: 10px; margin: 10px;"><h4 class="card-title">' + moment(data.list[i].dt_txt).format('L') + '</h4>' + iconEl + '<p>Temperature: ' + (parseInt((data.list[i].main.temp) - 273.15) * 9 / 5 + 32 + String.fromCharCode(176)) + 'F' + '</p><p>Humidity: ' + data.list[0].main.humidity + '%' + '</p></div>');
+          }
+          $('#weatherCards').html(container);
+          cities.push(data.city.name);
+           localStorage.setItem('cities', JSON.stringify(cities));
+           let localCities = JSON.parse(localStorage.getItem('cities'));
+           for(var i = 0; i < cities.length; i++){
+              $('#cityList').append('<li class="list-group-item">' + cities[i] + '</li>');
+              console.log(cities);
+            }
+            $.ajax({
+                    url: "http://api.openweathermap.org/data/2.5/uvi/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey,
+                    method: "GET"
+                    }).then(function(response) {
+                    console.log(response);
+                    $('#uvDisplay').text(response[0].value);
+                    });
+      }
+  });
+    }
+
+    document.getElementById('submitSearch').addEventListener('click', function(event){
+      event.preventDefault();
+      getWeather();
+    });
+
+  </script>
+
+</body>
+
+</html>
