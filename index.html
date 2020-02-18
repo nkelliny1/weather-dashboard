@@ -105,7 +105,7 @@ function getWeather(){
       var apiKey = 'f5a635184c5397619e4bd466ff42f5b9';
       $.ajax({
     type: "GET",
-    url: "http://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=" + apiKey,
+    url: "https://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=" + apiKey,
       dataType: 'json',
       success: function (data) {
           $('#cityDisplay').text(data.city.name + '(' + moment(data.list[0].dt_txt).format('L') + ')');
@@ -155,7 +155,7 @@ function getWeather(){
               console.log(cities);
             }
             $.ajax({
-                    url: "http://api.openweathermap.org/data/2.5/uvi/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey,
+                    url: "https://api.openweathermap.org/data/2.5/uvi/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey,
                     method: "GET"
                     }).then(function(response) {
                     console.log(response);
