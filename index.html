@@ -144,7 +144,7 @@ function getWeather(){
             else{
               iconEl = '<i class="fas fa-sun"></i>';
             }
-              container.append('<div class="col-sm-4" style="background-color: blue; border-radius: 20px; color: white; padding: 10px; margin: 10px;"><h4 class="card-title">' + moment(data.list[i].dt_txt).format('L') + '</h4>' + iconEl + '<p>Temperature: ' + (parseInt((data.list[i].main.temp) - 273.15) * 9 / 5 + 32 + String.fromCharCode(176)) + 'F' + '</p><p>Humidity: ' + data.list[0].main.humidity + '%' + '</p></div>');
+              container.append('<div class="col-sm-4" style="background-color: blue; border-radius: 20px; color: white; padding: 10px; margin: 10px;"><h4 class="card-title">' + moment(data.list[i].dt_txt).add(i, 'days').format('L') + '</h4>' + iconEl + '<p>Temperature: ' + (parseInt((data.list[i].main.temp) - 273.15) * 9 / 5 + 32 + String.fromCharCode(176)) + 'F' + '</p><p>Humidity: ' + data.list[0].main.humidity + '%' + '</p></div>');
           }
           $('#weatherCards').html(container);
           cities.push(data.city.name);
