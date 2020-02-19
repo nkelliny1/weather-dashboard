@@ -94,18 +94,74 @@
       if(localCities){
         cities = localCities;
       }
-      var container = $('ul');
-      for(var i = 0; i < cities.length; i++){
-        container.html('<li class="list-group-item">' + cities[i] + '</li>');
-        console.log(cities);
+      var cityName = cities[cities.length - 1];
+      var apiKey = 'f5a635184c5397619e4bd466ff42f5b9';
+      $.ajax({
+    type: "GET",
+    url: "http://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=" + apiKey,
+      dataType: 'json',
+      success: function (data) {
+          $('#cityDisplay').text(data.city.name + '(' + moment(data.list[0].dt_txt).format('L') + ')');
+          $('#tempDisplay').text((parseInt((data.list[0].main.temp) - 273.15) * 9 / 5 + 32 + String.fromCharCode(176)) + 'F');
+          $('#humDisplay').text(data.list[0].main.humidity + '%');
+          $('#windDisplay').text(data.list[0].wind.speed);
+          var iconMainEl = '';
+          if(data.list[0].weather[0].main === "Rain"){
+              iconMainEl = '<i class="fas fa-cloud-showers-heavy"></i>';
+            }
+            else if(data.list[0].weather[0].main === "Clear"){
+              iconMainEl = '<i class="fas fa-sun"></i>';
+            }
+            else if (data.list[0].weather[0].main === "Clouds"){
+              iconMainEl = '<i class="fas fa-cloud"></i>';
+            }
+            else{
+              iconMainEl = '<i class="fas fa-sun"></i>';
+            }
+            $('#mainIcon').html(iconMainEl);
+          var lat = data.city.coord.lat;
+          var lon = data.city.coord.lon;
+          console.log(data);
+          var container = $('<div class="row"/>');
+          var iconEl = ''
+          for(var i = 1; i < 6; i++) {
+            if(data.list[i].weather[0].main === "Rain"){
+              iconEl = '<i class="fas fa-cloud-showers-heavy"></i>';
+            }
+            else if(data.list[i].weather[0].main === "Clear"){
+              iconEl = '<i class="fas fa-sun"></i>';
+            }
+            else if (data.list[i].weather[0].main === "Clouds"){
+              iconEl = '<i class="fas fa-cloud"></i>';
+            }
+            else{
+              iconEl = '<i class="fas fa-sun"></i>';
+            }
+              container.append('<div class="col-sm-4" style="background-color: blue; border-radius: 20px; color: white; padding: 10px; margin: 10px;"><h4 class="card-title">' + moment(data.list[i].dt_txt).add(i, 'days').format('L') + '</h4>' + iconEl + '<p>Temperature: ' + (parseInt((data.list[i].main.temp) - 273.15) * 9 / 5 + 32 + String.fromCharCode(176)) + 'F' + '</p><p>Humidity: ' + data.list[0].main.humidity + '%' + '</p></div>');
+          }
+          $('#weatherCards').html(container);
+           let localCities = JSON.parse(localStorage.getItem('cities'));
+           $('#cityList').html('');
+           for(var i = 0; i < localCities.length; i++){
+              $('#cityList').append('<li class="list-group-item">' + localCities[i] + '</li>');
+              console.log(localCities);
+            }
+            $.ajax({
+                    url: "http://api.openweathermap.org/data/2.5/uvi/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey,
+                    method: "GET"
+                    }).then(function(response) {
+                    console.log(response);
+                    $('#uvDisplay').text(response[0].value);
+                    });
       }
+  });
       
 function getWeather(){
       var cityName = document.getElementById('citySearch').value;
       var apiKey = 'f5a635184c5397619e4bd466ff42f5b9';
       $.ajax({
     type: "GET",
-    url: "https://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=" + apiKey,
+    url: "http://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=" + apiKey,
       dataType: 'json',
       success: function (data) {
           $('#cityDisplay').text(data.city.name + '(' + moment(data.list[0].dt_txt).format('L') + ')');
@@ -150,12 +206,13 @@ function getWeather(){
           cities.push(data.city.name);
            localStorage.setItem('cities', JSON.stringify(cities));
            let localCities = JSON.parse(localStorage.getItem('cities'));
-           for(var i = 0; i < cities.length; i++){
-              $('#cityList').append('<li class="list-group-item">' + cities[i] + '</li>');
-              console.log(cities);
+           $('#cityList').html('');
+           for(var i = 0; i < localCities.length; i++){
+              $('#cityList').append('<li class="list-group-item">' + localCities[i] + '</li>');
+              console.log(localCities);
             }
             $.ajax({
-                    url: "https://api.openweathermap.org/data/2.5/uvi/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey,
+                    url: "http://api.openweathermap.org/data/2.5/uvi/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey,
                     method: "GET"
                     }).then(function(response) {
                     console.log(response);
